@@ -1,0 +1,21 @@
+Update 1.5/code6: 61 tests passed; signed APK/AAB rebuilt with density-adjusted native status-bar inset and 8px native top spacing. Owner's Vivo screenshot identified excessive gap in 1.4. Harness screenshot with 24px inset has controls at y=32. No new Android device runtime test completed; owner retest needed.
+APK SHA256: db4309235a8f94d7cbdf4ca971878a47683242d87365f900ab6508c9f5b7ca64
+AAB SHA256: 6b6b236658569b6af5f47c21c0798513d31c02618b94890971213c7a05539cc4
+Earlier 1.4 verification follows:
+
+Drift Android 1.4 verification - September 30, 2026
+
+61 unit tests passed; production TypeScript/Vite build passed. APK app.drift.music, version 1.4/code5, minSDK23/targetSDK35. APK v1/v2 signature verified using the same publisher certificate. AAB jarsigner verified, with self-signed/no-timestamp and ZIP/JAR-order caveats. Not a Play Store submission or independent security audit.
+APK SHA256: 0fb352ae7fd50a67d29ec4711f59409c6a03061b3625ad41d1fceb2e45c05df0
+AAB SHA256: b7fbcaa54a0ffd9191abe92ed05be58adaccd0004f82e4fe7174c122327296e0
+Certificate SHA256: 84cf73cb658fb36ee9488192b71f9fd8a1b5ade8446fe126d5d5719adce56a8b
+
+Hosted /api/download redirects to the final signed APK; downloaded bytes match hash above. Website and native bridge desktop harness checked at 393x852 and 360x640. Full-bleed real artwork, transparent overlay top bar, SVG action rail and 3-item floating dock inspected in pixels. No horizontal overflow at 360px. Likes, Profile creator credit, Tune source control and native-hidden APK CTA verified in desktop harness. Source filter moved behind Tune; artist management is in Profile.
+
+Live Jamendo catalog rock query returned 100 tracks, 27 with provider lyrics. Real exact-matched Jamendo Gnarly (feat. Devyn Rush) LRC returned from LRCLIB; at 15 seconds one line highlighted during actual playback. Visual check shows lime current line. Safe and Warm in Hunter's Arms starts vocals at 33 seconds, so there is correctly no active line during the capped preview. Mainstream lyrics remain static. A source-injected catalog fixture selected the real Jamendo track for deterministic screenshot; actual lyrics endpoint and audio were live, not synthetic text/timestamps.
+
+No Android device/emulator runtime test completed. Earlier emulator attempts failed insufficient RAM. Native installation, status-bar insets, external handoff and lifecycle remain to be checked on the owner's phone. Native bridge desktop harness is not a device test. Android edge-to-edge/inset listener compiled successfully.
+
+Production-only dependency audit: 0 vulnerabilities. Full audit previously found 2 moderate dev-only Vitest/mocker findings. All music remains limited to 30-second previews, no full-song unlock/background music service. Device-local saves remain separate from browser saves. External API rights for public/commercial rollout and lyrics reuse are unverified; free access is not blanket permission.
+
+The actual Stitch rendered HTML/styles/SVG was recovered from its concept screen iframe after ZIP export produced no workspace download. Editor-injected scripts were removed. Base design source included at design/stitch/after-dark.html; placeholder data is not used as truth. Signing key/credentials are excluded. Future releases require same key and higher versionCode.

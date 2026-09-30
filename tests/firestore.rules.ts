@@ -1,0 +1,21 @@
+import {beforeAll,afterAll,it} from 'vitest';
+import {readFileSync} from 'node:fs';
+import {initializeTestEnvironment,assertSucceeds,assertFails,type RulesTestEnvironment} from '@firebase/rules-unit-testing';
+import {doc,setDoc,getDoc} from 'firebase/firestore';
+let env:RulesTestEnvironment;
+beforeAll(async()=>{env=await initializeTestEnvironment({projectId:'demo-drift',firestore:{host:'127.0.0.1',port:8189,rules:readFileSync('firestore.rules','utf8')}});});
+afterAll(async()=>env?.cleanup());
+it('isolates users, rejects unauthenticated/extra fields and allows own likes/preferences',async()=>{
+ const alice=env.authenticatedContext('alice').firestore(),bob=env.authenticatedContext('bob').firestore(),guest=env.unauthenticatedContext().firestore();
+ const like={id:1,title:'Song',artistName:'Artist',likedAt:1};
+ await assertSucceeds(setDoc(doc(alice,'users/alice/likes/1'),like));
+ await assertSucceeds(getDoc(doc(alice,'users/alice/likes/1')));
+ await assertFails(getDoc(doc(bob,'users/alice/likes/1')));
+ await assertFails(getDoc(doc(guest,'users/alice/likes/1')));
+ await assertFails(setDoc(doc(alice,'users/alice/likes/1'),{...like,preview:'secret'}));
+ await assertFails(setDoc(doc(alice,'users/alice/likes/2'),like));
+ await assertFails(setDoc(doc(alice,'users/alice/likes/1'),{...like,likedAt:'wrong'}));
+ await assertSucceeds(setDoc(doc(alice,'users/alice/preferences/discovery'),{genre:0,mood:'Chill',query:''}));
+ await assertFails(setDoc(doc(bob,'users/alice/preferences/discovery'),{genre:0,mood:'Chill',query:''}));
+ await assertFails(setDoc(doc(alice,'other/secret'),like));
+});

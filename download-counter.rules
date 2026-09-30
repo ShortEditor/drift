@@ -1,0 +1,13 @@
+rules_version = '2';
+service cloud.firestore {
+ match /databases/{database}/documents {
+  match /counters/downloads {
+   allow get: if true;
+   allow list, create, delete: if false;
+   allow update: if request.resource.data.keys().hasOnly(['count'])
+     && request.resource.data.count is int
+     && request.resource.data.count == resource.data.count + 1;
+  }
+  match /{document=**} { allow read, write: if false; }
+ }
+}

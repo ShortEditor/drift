@@ -1,0 +1,1 @@
+module.exports={content:['./src/**/*.{ts,tsx}','./design/stitch/after-dark.html'],corePlugins:{preflight:false},important:'.stitch-ui',theme:{extend:{colors:{brand:{lime:'#D4FF00',limeHover:'#c1ea00',dark:'#08080A',card:'rgba(16,17,22,.65)'}},fontFamily:{display:['Syne','sans-serif'],sans:['Plus Jakarta Sans','sans-serif']}}}};
