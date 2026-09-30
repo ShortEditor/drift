@@ -1,3 +1,9 @@
+Update 1.6/code7: 56 tests passed; TypeScript/Vite production build passed. Jamendo-native lyrics only, no separate lyrics requests. No lyrics for mainstream/Deezer. Timing works only if provider text actually contains timestamps; no generally available native karaoke is promised. Artist/Jamendo credit, direct track backlink and CC link present. Signed APK/AAB rebuilt with the same certificate. Hosted APK bytes match local APK. Native spacing fix preserved, owner phone retest still required.
+APK SHA256: d534c8fefc2556a01a93fe24cde0012a7c500d20f812495d6b7743ed6d613e75
+AAB SHA256: 471ad8b07f38750e5e568b6a3472eb20770f89052a662993b5ff195fd7869caf
+
+HISTORICAL release notes below describe superseded behavior, not current lyrics behavior:
+
 Update 1.5/code6: 61 tests passed; signed APK/AAB rebuilt with density-adjusted native status-bar inset and 8px native top spacing. Owner's Vivo screenshot identified excessive gap in 1.4. Harness screenshot with 24px inset has controls at y=32. No new Android device runtime test completed; owner retest needed.
 APK SHA256: db4309235a8f94d7cbdf4ca971878a47683242d87365f900ab6508c9f5b7ca64
 AAB SHA256: 6b6b236658569b6af5f47c21c0798513d31c02618b94890971213c7a05539cc4

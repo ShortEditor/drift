@@ -1,6 +1,0 @@
-import {it,expect,vi,afterEach} from 'vitest';
-// @ts-expect-error server module
-import handler from '../api/lyrics.js';
-const response=()=>{const r={status:vi.fn(),json:vi.fn(),setHeader:vi.fn()};r.status.mockReturnValue(r);r.json.mockReturnValue(r);return r;};afterEach(()=>vi.unstubAllGlobals());
-it('rejects bad query and non-GET before network',async()=>{const f=vi.fn();vi.stubGlobal('fetch',f);const r=response();await handler({method:'POST',query:{}},r);expect(r.status).toHaveBeenCalledWith(405);await handler({method:'GET',query:{title:'x',artist:['a']}},r);expect(r.status).toHaveBeenCalledWith(400);expect(f).not.toHaveBeenCalled();});
-it('returns exact matched lyrics and identifies client',async()=>{const f=vi.fn().mockResolvedValue({ok:true,status:200,json:async()=>[{trackName:'Test song 41',artistName:'Test artist',albumName:'Test album',plainLyrics:'test text'}]});vi.stubGlobal('fetch',f);const r=response();await handler({method:'GET',query:{title:'Test song 41',artist:'Test artist',album:'Test album'}},r);expect(r.json).toHaveBeenCalledWith(expect.objectContaining({lyrics:expect.objectContaining({text:'test text'})}));expect(f.mock.calls[0][1].headers['User-Agent']).toContain('drift/1.4');});

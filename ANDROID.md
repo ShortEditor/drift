@@ -2,7 +2,7 @@
 
 This is a Capacitor Android app with the same React UI bundled locally, not a Kotlin/Java UI rewrite. It uses the existing HTTPS backend and needs internet for catalog/audio. Device-local follows/likes are stored in the app's WebView and are separate from browser saves. Android 6.0+ is the build minimum; use a current Android System WebView/Chrome. Actual runtime testing limits are in the delivered verification report.
 
-- App ID: `app.drift.music`, app name `drift`, version 1.5 / versionCode 6.
+- App ID: `app.drift.music`, app name `drift`, version 1.6 / versionCode 7.
 - Target/compile SDK 35, Capacitor 7, Java 21, Gradle wrapper included.
 - Release signing: RSA 3072, alias `drift-release`, passwords saved in the owner's vault. Keep the same key for updates. The encrypted PKCS12 key backup is saved separately in the vault; no private signing key/password is in source.
 - HTTPS only, Android cleartext disabled, mixed content disabled, release WebView debugging disabled, backup disabled, only INTERNET plus an app-private AndroidX receiver permission. No camera/location/microphone/storage/contacts permissions.
@@ -30,19 +30,19 @@ Download the APK, open it on Android and allow installation from that specific b
 
 ## Website download and counts
 
-The website offers /download and the signed v1.5 APK at /releases/drift-1.5.apk. The download button is hidden in native Capacitor. GET /api/download attempts an anonymous Firestore count increment and then redirects to the APK, even if the counter is unavailable. It counts requests, not installs or completed downloads. Repeat requests and bots can inflate it; direct APK requests bypass it.
+The website offers /download and the signed v1.6 APK at /releases/drift-1.6.apk. The download button is hidden in native Capacitor. GET /api/download attempts an anonymous Firestore count increment and then redirects to the APK, even if the counter is unavailable. It counts requests, not installs or completed downloads. Repeat requests and bots can inflate it; direct APK requests bypass it.
 
 Vercel Hobby Web Analytics measures website visits only; native builds skip it. Its free allowance is 50,000 events/month with 30-day history. Firestore uses the separate drift-download-counters Spark project without billing; the counter contains only one integer. Rules allow public get and exact +1 updates only, with no create/delete/list or other document access. Public increments can consume the free quota. No personal data is sent to this counter; hosting and Web Analytics have their own metadata handling.
 
 ## Lyrics
 
-LRCLIB (https://lrclib.net/docs) supplies on-demand static lyrics. Requests include track/artist/album and full duration where available. Ambiguous records are rejected; unavailable or unmatched lyrics show a quiet message. The full-song start offset of mainstream previews is unknown, so full-song LRC timestamps are not synchronized to the 30-second clip. LRCLIB is a free API, not a blanket lyric copyright license. Lyrics remain their owners' work and rights for public/commercial reuse are unverified. No lyric database is bundled.
+Only Jamendo native lyrics are used, through the catalog include=licenses+lyrics request. Lyrics open without another network request. Provider text is shown as plain text unless it contains LRC timestamps, when the parser highlights the active line. No timing availability is promised. Mainstream/Deezer tracks show no lyrics. Lyrics remain their owners' work; API access is not blanket public/commercial reuse permission.
 
 ## After Dark layout and optional synced lyrics
 
 The player uses the actual Stitch concept HTML geometry, SVG paths and bundled fonts, adapted to React. Art covers the screen; top bar and dock float over it. Tune holds search/genre/source controls, Profile holds About and artist management. Placeholder social numbers and verified badges are removed. Real catalog artwork is not the generated singer photograph.
 
-Jamendo provider lyrics are requested using include=licenses+lyrics. Exact title/artist/album/full-duration LRCLIB records can add LRC line-sync against the Jamendo track timeline; otherwise provider plain text, then LRCLIB static text, is shown. Audio remains capped to 30 seconds. Instrumental intros can contain no active lyric line within that cap. Mainstream clips stay static because their full-song offsets are unknown.
+Artist credit, Jamendo credit, the provider-returned direct track-page backlink and individual CC license are shown per Jamendo track, including the lyrics sheet. This implements Jamendo API terms clause 4.1, not clearance for all downstream uses: https://devportal.jamendo.com/api_terms_of_use . Audio remains capped to 30 seconds. Instrumental intros can contain no active lyric line within that cap.
 
 Native status-bar overlay uses Android window insets with WebView safe-padding CSS. This native-specific behavior still needs phone verification.
 
