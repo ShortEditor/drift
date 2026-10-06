@@ -40,30 +40,43 @@ function canvasLines(ctx:CanvasRenderingContext2D,text:string,width:number,size:
  }
  if(line)lines.push(line);if(lines.length>maxLines){lines.length=maxLines;let last=lines[maxLines-1];while(ctx.measureText(last+'…').width>width)last=last.slice(0,-1);lines[maxLines-1]=last+'…';}return lines;
 }
-export async function createStoryCard(track:Track):Promise<Blob> {
+export type StoryStyle='pulse'|'after-dark'|'poster';
+export async function createStoryCard(track:Track,style:StoryStyle='after-dark'):Promise<Blob> {
  const canvas=document.createElement('canvas');canvas.width=1080;canvas.height=1920;
  const ctx=canvas.getContext('2d');if(!ctx)throw new Error('Image export unavailable');
- const gradient=ctx.createLinearGradient(0,0,1080,1920);gradient.addColorStop(0,'#101b20');gradient.addColorStop(1,'#08080a');ctx.fillStyle=gradient;ctx.fillRect(0,0,1080,1920);
- ctx.fillStyle='#d4ff00';ctx.font='italic 96px Georgia, serif';ctx.fillText('drift',86,222);
- ctx.fillStyle='#b3bac0';ctx.font='30px system-ui, sans-serif';ctx.fillText('FOUND A NEW FAVORITE',88,292);
- ctx.strokeStyle='#d4ff00';ctx.lineWidth=12;
- for(let i=0;i<17;i++){const h=70+Math.sin(i*.8)**2*210;ctx.beginPath();ctx.moveTo(120+i*52,660-h/2);ctx.lineTo(120+i*52,660+h/2);ctx.stroke();}
- ctx.fillStyle='#ffffff';const title=canvasLines(ctx,track.title,900,70,4);title.forEach((line,i)=>ctx.fillText(line,88,995+i*88));
- ctx.fillStyle='#d4ff00';ctx.font='42px system-ui, sans-serif';const artist=canvasLines(ctx,track.artist.name,900,42,2);ctx.font='42px system-ui, sans-serif';artist.forEach((line,i)=>ctx.fillText(line,88,1055+title.length*88+i*55));
- ctx.fillStyle='#ffffff';ctx.font='700 42px system-ui, sans-serif';ctx.fillText('Discover it on drift',88,1580);
- // The exported image carries the Drift wordmark only, not a URL.
- ctx.fillStyle='#a1a8ae';ctx.font='26px system-ui, sans-serif';ctx.fillText('Song link shared separately. No audio included.',88,1720);
- ctx.font='24px system-ui, sans-serif';ctx.fillText('Original Drift graphic. No album artwork.',88,1765);
+ const palettes={pulse:['#112735','#060a15','#c5ff45'], 'after-dark':['#291a41','#080812','#d7ff38'],poster:['#e6ff56','#c5e739','#14201a']};
+ const [top,bottom,accent]=palettes[style];
+ const gradient=ctx.createLinearGradient(0,0,1080,1920);gradient.addColorStop(0,top);gradient.addColorStop(1,bottom);ctx.fillStyle=gradient;ctx.fillRect(0,0,1080,1920);
+ const light=style==='poster';const ink=light?'#14201a':'#ffffff';
+ ctx.fillStyle=accent;ctx.font='700 26px system-ui, sans-serif';ctx.fillText('A SONG WORTH SHARING',86,208);
+ if(style==='after-dark'){
+  const glow=ctx.createRadialGradient(540,650,5,540,650,440);glow.addColorStop(0,'#75569d');glow.addColorStop(1,'#291a4100');ctx.fillStyle=glow;ctx.fillRect(80,260,920,820);
+  ctx.fillStyle='#0b0d14';ctx.beginPath();ctx.arc(540,650,305,0,Math.PI*2);ctx.fill();
+  for(let r=95;r<295;r+=18){ctx.strokeStyle='#ffffff14';ctx.lineWidth=2;ctx.beginPath();ctx.arc(540,650,r,0,Math.PI*2);ctx.stroke();}
+  ctx.fillStyle=accent;ctx.beginPath();ctx.arc(540,650,84,0,Math.PI*2);ctx.fill();ctx.fillStyle='#12131b';ctx.beginPath();ctx.arc(540,650,14,0,Math.PI*2);ctx.fill();
+  ctx.save();ctx.translate(540,650);ctx.rotate(-.38);ctx.fillStyle='#ffffff18';ctx.fillRect(-300,-7,600,14);ctx.restore();
+ }else if(style==='pulse'){
+  ctx.strokeStyle='#ffffff12';ctx.lineWidth=2;for(let r=140;r<=400;r+=65){ctx.beginPath();ctx.arc(540,650,r,0,Math.PI*2);ctx.stroke();}
+  ctx.strokeStyle=accent;ctx.lineWidth=16;ctx.lineCap='round';for(let i=0;i<19;i++){const h=40+Math.sin(i*.75)**2*280;ctx.beginPath();ctx.moveTo(135+i*45,650-h/2);ctx.lineTo(135+i*45,650+h/2);ctx.stroke();}
+ }else{
+  ctx.save();ctx.translate(540,600);ctx.rotate(-.18);ctx.fillStyle=ink;ctx.fillRect(-345,-235,690,470);ctx.fillStyle=top;ctx.font='italic 230px Georgia, serif';ctx.fillText('drift',-255,60);ctx.restore();
+  ctx.strokeStyle=ink;ctx.lineWidth=4;ctx.strokeRect(86,290,908,680);
+ }
+ ctx.fillStyle=ink;const title=canvasLines(ctx,track.title,890,78,4);title.forEach((line,i)=>ctx.fillText(line,88,1110+i*92));
+ ctx.fillStyle=light?'#31422e':'#d7ff38';const artist=canvasLines(ctx,track.artist.name,890,42,2);ctx.font='42px system-ui, sans-serif';artist.forEach((line,i)=>ctx.fillText(line,88,1160+title.length*92+i*55));
+ ctx.strokeStyle=light?'#14201a55':'#ffffff30';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(88,1640);ctx.lineTo(992,1640);ctx.stroke();
+ ctx.fillStyle=ink;ctx.font='italic 92px Georgia, serif';ctx.fillText('drift',86,1770);
+ ctx.font='25px system-ui, sans-serif';ctx.fillText('SCROLL. LISTEN. DISCOVER.',520,1755);
  return new Promise((resolve,reject)=>canvas.toBlob(blob=>blob?resolve(blob):reject(new Error('Image export unavailable')),'image/png'));
 }
 function StoryShare({track,onClose}:{track:Track;onClose:()=>void}) {
- const close=useRef(onClose);close.current=onClose;const dialog=useRef<HTMLDivElement>(null);const [image,setImage]=useState<{blob:Blob;url:string}>();const [status,setStatus]=useState('Making your story card…');
+ const close=useRef(onClose);close.current=onClose;const dialog=useRef<HTMLDivElement>(null);const [style,setStyle]=useState<StoryStyle>('after-dark');const [image,setImage]=useState<{blob:Blob;url:string}>();const [status,setStatus]=useState('Making your story card…');
  const songUrl=songShareUrl(track);const label=`${track.title} · ${track.artist.name}`;const shareText=`${label}\nDiscovered on Drift: ${DRIFT_SHARE_URL}${songUrl?'\nOriginal song: '+songUrl:''}`;
  useEffect(()=>{let alive=true;let objectUrl='';const previous=document.activeElement as HTMLElement|null;
-  dialog.current?.focus();void createStoryCard(track).then(blob=>{if(!alive)return;objectUrl=URL.createObjectURL(blob);setImage({blob,url:objectUrl});setStatus('Ready. Choose how to share.');}).catch(()=>{if(alive)setStatus('Card export unavailable. You can still copy or share the link.');});
+  dialog.current?.focus();setImage(undefined);setStatus('Making your story card…');void createStoryCard(track,style).then(blob=>{if(!alive)return;objectUrl=URL.createObjectURL(blob);setImage({blob,url:objectUrl});setStatus('Ready. Choose how to share.');}).catch(()=>{if(alive)setStatus('Card export unavailable. You can still copy or share the link.');});
   const key=(e:KeyboardEvent)=>{if(e.key==='Escape'){e.preventDefault();close.current();}if(e.key==='Tab'){const els=dialog.current?.querySelectorAll<HTMLElement>('button:not(:disabled),a[href],textarea');if(!els?.length)return;const first=els[0],last=els[els.length-1];if(e.shiftKey&&(document.activeElement===first||document.activeElement===dialog.current)){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}}};document.addEventListener('keydown',key);
   return()=>{alive=false;URL.revokeObjectURL(objectUrl);document.removeEventListener('keydown',key);previous?.focus();};
- },[track]);
+ },[track,style]);
  const copy=async(value:string)=>{try{if(!navigator.clipboard?.writeText)throw new Error('Clipboard unavailable');await navigator.clipboard.writeText(value);setStatus('Link copied. Add it as a link sticker in Instagram.');}catch{setStatus('Clipboard unavailable. Select and copy the link below.');}};
  const native=async()=>{try{if(!navigator.share){setStatus('Use Download card, then add it to your Story and paste a link sticker.');return;}
   const file=image?new File([image.blob],'drift-story.png',{type:'image/png'}):undefined;
@@ -74,6 +87,7 @@ function StoryShare({track,onClose}:{track:Track;onClose:()=>void}) {
  .drift-share-backdrop.stitch-ui{max-width:none;width:auto;height:auto;position:fixed;inset:0;z-index:100;background:#000b;display:grid;place-items:center;padding:14px}.drift-share-sheet{width:min(100%,420px);max-height:calc(100dvh - 28px);overflow:auto;padding:20px;background:#11151c;border:1px solid #ffffff26;border-radius:22px;box-shadow:0 20px 80px #0008;color:#fff}.stitch-ui .drift-share-sheet button,.stitch-ui .drift-share-sheet a{padding:10px 14px;min-height:44px;border-radius:12px;border:1px solid #ffffff35;display:inline-flex;align-items:center;justify-content:center;background:#20262e;font-size:13px;color:white}.stitch-ui .drift-share-sheet .drift-share-primary{background:#d4ff00;color:#0a0b0e;border:0;font-weight:700}.drift-share-sheet h2{font-size:21px;margin:0}.drift-share-heading{display:flex;align-items:center;justify-content:space-between;gap:12px}.drift-share-sheet p{font-size:12px;line-height:1.5;color:#b8c0cb}.drift-share-sheet img{display:block;width:155px;max-width:55%;height:auto;margin:14px auto;border:1px solid #ffffff35;border-radius:10px}.drift-share-actions{display:flex;flex-wrap:wrap;gap:8px}.drift-share-sheet textarea{width:100%;min-height:60px;background:#080b10;border:1px solid #ffffff30;color:#d4ff00;border-radius:8px;padding:8px;font-size:11px;resize:vertical}.drift-share-sheet label{display:block;font-size:11px;color:#bcc4cf;margin-top:14px}.drift-share-sheet [role=status]{color:#e3e8ee;margin-bottom:0}@media(max-height:650px){.drift-share-sheet img{width:105px}.drift-share-sheet{padding:14px}}
  `}</style><div ref={dialog} role="dialog" aria-modal="true" aria-labelledby={`share-heading-${track.id}`} tabIndex={-1} className="drift-share-sheet"><div className="drift-share-heading"><h2 id={`share-heading-${track.id}`}>Share your discovery</h2><button onClick={onClose} aria-label="Close sharing">✕</button></div>
  <p>A story-ready card with Drift's watermark. No album artwork or audio. Instagram Stories may not appear in your device's share sheet.</p>
+ <div className="drift-share-actions" role="group" aria-label="Story template">{(['after-dark','pulse','poster'] as StoryStyle[]).map(value=><button key={value} aria-pressed={style===value} onClick={()=>setStyle(value)} className={style===value?'drift-share-primary':''}>{value==='after-dark'?'After dark':value==='pulse'?'Pulse':'Poster'}</button>)}</div>
  {image&&<img src={image.url} alt={`Drift story card for ${label}`}/>}
  <div className="drift-share-actions"><button className="drift-share-primary" onClick={()=>void native()} disabled={!image}>Share card</button>{image&&<a href={image.url} download="drift-story.png">Download card</a>}<button onClick={()=>void copy(DRIFT_SHARE_URL)}>Copy Drift link</button>{songUrl&&<button onClick={()=>void copy(songUrl)}>Copy song link</button>}</div>
  <p>For Instagram: download the card, add it to your Story, then paste a link sticker. The image itself has no clickable link.</p>
