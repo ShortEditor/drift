@@ -1,0 +1,11 @@
+Drift Android 1.7 (versionCode 8), October 6, 2026
+Package: app.drift.music
+New release certificate SHA256: 4b7942dfb3b39dd6808510b97e38062afdfe11cedd2cfb63ca23f50def793788
+Java21, Gradle8.11.1, compile/target SDK35, minSDK23.
+Signed APK v1/v2 verification passes. RSA3072.
+67 web unit tests, 14 browser tests pass. Includes simulated Android bridge PNG share/save tests, not device tests.
+Android assembleRelease passes. Android testDebugUnitTest returns NO-SOURCE, not native unit coverage.
+No phone/emulator available. Installation, playback, chooser/save picker, Instagram destination, keyboard/status insets need device retest.
+New signing key cannot update previous app: uninstall old Drift before installation. Device-local saves/follows are lost.
+No full-song downloads or exported provider artwork/audio. Card exports use Drift original graphics only.
+Key/passwords excluded from source. Separate vault entries and private encrypted-file backup prepared.
