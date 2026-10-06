@@ -1,3 +1,6 @@
+import {Capacitor,registerPlugin} from '@capacitor/core';
+const DriftShare=registerPlugin<{share(options:{base64:string;text:string}):Promise<void>;save(options:{base64:string}):Promise<{canceled:boolean}>}>('DriftShare');
+async function cardBase64(blob:Blob):Promise<string>{const bytes=new Uint8Array(await blob.arrayBuffer());let value='';for(let i=0;i<bytes.length;i+=8192)value+=String.fromCharCode(...bytes.subarray(i,i+8192));return btoa(value);}
 import {useEffect,useRef,useState} from 'react';
 import {createPortal} from 'react-dom';
 import type {Track} from '../api/types';import {playable} from '../api/types';import type {AudioState} from '../audio/controller';import {ListenLinks} from './ListenLinks';import {Lyrics} from './Lyrics';import {StitchIcon} from './StitchIcon';
@@ -78,7 +81,8 @@ function StoryShare({track,onClose}:{track:Track;onClose:()=>void}) {
   return()=>{alive=false;URL.revokeObjectURL(objectUrl);document.removeEventListener('keydown',key);previous?.focus();};
  },[track,style]);
  const copy=async(value:string)=>{try{if(!navigator.clipboard?.writeText)throw new Error('Clipboard unavailable');await navigator.clipboard.writeText(value);setStatus('Link copied. Add it as a link sticker in Instagram.');}catch{setStatus('Clipboard unavailable. Select and copy the link below.');}};
- const native=async()=>{try{if(!navigator.share){setStatus('Use Download card, then add it to your Story and paste a link sticker.');return;}
+ const saveCard=async()=>{if(!image)return;try{const result=await DriftShare.save({base64:await cardBase64(image.blob)});setStatus(result.canceled?'Save canceled.':'Card saved. Add it to your Story.');}catch{setStatus('Card could not be saved. Try sharing instead.');}};
+ const native=async()=>{try{if(Capacitor.isNativePlatform()&&image){await DriftShare.share({base64:await cardBase64(image.blob),text:shareText});setStatus('Card handed to your share sheet. Choose your destination.');return;}if(!navigator.share){setStatus('Use Download card, then add it to your Story and paste a link sticker.');return;}
   const file=image?new File([image.blob],'drift-story.png',{type:'image/png'}):undefined;
   if(file&&navigator.canShare?.({files:[file]})){await navigator.share({files:[file],title:label,text:shareText});setStatus('Card handed to your share sheet. Choose your destination.');}
   else{await navigator.share({title:label,text:shareText,url:DRIFT_SHARE_URL});setStatus('Link handed to your share sheet. Download the card separately.');}
@@ -89,7 +93,7 @@ function StoryShare({track,onClose}:{track:Track;onClose:()=>void}) {
  <p>A story-ready card with Drift's watermark. No album artwork or audio. Instagram Stories may not appear in your device's share sheet.</p>
  <div className="drift-share-actions" role="group" aria-label="Story template">{(['after-dark','pulse','poster'] as StoryStyle[]).map(value=><button key={value} aria-pressed={style===value} onClick={()=>setStyle(value)} className={style===value?'drift-share-primary':''}>{value==='after-dark'?'After dark':value==='pulse'?'Pulse':'Poster'}</button>)}</div>
  {image&&<img src={image.url} alt={`Drift story card for ${label}`}/>}
- <div className="drift-share-actions"><button className="drift-share-primary" onClick={()=>void native()} disabled={!image}>Share card</button>{image&&<a href={image.url} download="drift-story.png">Download card</a>}<button onClick={()=>void copy(DRIFT_SHARE_URL)}>Copy Drift link</button>{songUrl&&<button onClick={()=>void copy(songUrl)}>Copy song link</button>}</div>
+ <div className="drift-share-actions"><button className="drift-share-primary" onClick={()=>void native()} disabled={!image}>Share card</button>{image&&(Capacitor.isNativePlatform()?<button onClick={()=>void saveCard()}>Download card</button>:<a href={image.url} download="drift-story.png">Download card</a>)}<button onClick={()=>void copy(DRIFT_SHARE_URL)}>Copy Drift link</button>{songUrl&&<button onClick={()=>void copy(songUrl)}>Copy song link</button>}</div>
  <p>For Instagram: download the card, add it to your Story, then paste a link sticker. The image itself has no clickable link.</p>
  <label>Links for manual copy<textarea readOnly aria-label="Share links" value={shareText}/></label><p role="status" aria-live="polite">{status}</p></div></div>,document.body);
 }
