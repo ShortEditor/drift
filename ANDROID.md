@@ -2,7 +2,7 @@
 
 This is a Capacitor Android app with the same React UI bundled locally, not a Kotlin/Java UI rewrite. It uses the existing HTTPS backend and needs internet for catalog/audio. Device-local follows/likes are stored in the app's WebView and are separate from browser saves. Android 6.0+ is the build minimum; use a current Android System WebView/Chrome. Actual runtime testing limits are in the delivered verification report.
 
-- App ID: `app.drift.music`, app name `drift`, version 1.6 / versionCode 7.
+- App ID: `app.drift.music`, app name `drift`, version 1.7 / versionCode 8.
 - Target/compile SDK 35, Capacitor 7, Java 21, Gradle wrapper included.
 - Release signing: RSA 3072, alias `drift-release`, passwords saved in the owner's vault. Keep the same key for updates. The encrypted PKCS12 key backup is saved separately in the vault; no private signing key/password is in source.
 - HTTPS only, Android cleartext disabled, mixed content disabled, release WebView debugging disabled, backup disabled, only INTERNET plus an app-private AndroidX receiver permission. No camera/location/microphone/storage/contacts permissions.
@@ -49,3 +49,11 @@ Native status-bar overlay uses Android window insets with WebView safe-padding C
 ## Android 1.5 spacing fix
 
 Owner Vivo screenshot showed top controls too low. Native inset is now converted from physical px to density-adjusted CSS px, and native top spacing is 8px beneath that inset instead of 48px. Native desktop harness places controls at y=32 for a 24px status bar. Actual phone retest is still needed.
+
+## Android 1.7 (October 6, 2026)
+
+This release uses a NEW signing key, explicitly chosen by the owner. It cannot update the previous installed app. Uninstall the old app before installing; device-local saved songs and follows are lost. The previous key entries remain untouched. New signing credentials and encrypted key backup are separate entries labelled 2026-10 New Key. Keep an independent encrypted keystore-file backup as well.
+
+Includes four-tab Artists dock fix, three Drift original share templates, song/title and artist search hidden behind a search icon. Native share sends a PNG with temporary URI access; native Download card opens Android's Create Document picker. No broad storage permission, album-art export or audio export.
+
+Release compiled on Java21/SDK35. APK signature and package verified. Web unit/browser tests and simulated native bridge test pass. No real phone or emulator runtime test was available, so installation, preview playback, Android chooser/save picker, Instagram availability and status/keyboard insets still need phone verification. Android unit-test task completes with NO-SOURCE; it is not native test coverage.
