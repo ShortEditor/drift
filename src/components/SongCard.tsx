@@ -51,7 +51,7 @@ export async function createStoryCard(track:Track):Promise<Blob> {
  ctx.fillStyle='#ffffff';const title=canvasLines(ctx,track.title,900,70,4);title.forEach((line,i)=>ctx.fillText(line,88,995+i*88));
  ctx.fillStyle='#d4ff00';ctx.font='42px system-ui, sans-serif';const artist=canvasLines(ctx,track.artist.name,900,42,2);ctx.font='42px system-ui, sans-serif';artist.forEach((line,i)=>ctx.fillText(line,88,1055+title.length*88+i*55));
  ctx.fillStyle='#ffffff';ctx.font='700 42px system-ui, sans-serif';ctx.fillText('Discover it on drift',88,1580);
- ctx.fillStyle='#d4ff00';ctx.font='34px system-ui, sans-serif';ctx.fillText('drift-music-scroll.vercel.app',88,1642);
+ // The exported image carries the Drift wordmark only, not a URL.
  ctx.fillStyle='#a1a8ae';ctx.font='26px system-ui, sans-serif';ctx.fillText('Song link shared separately. No audio included.',88,1720);
  ctx.font='24px system-ui, sans-serif';ctx.fillText('Original Drift graphic. No album artwork.',88,1765);
  return new Promise((resolve,reject)=>canvas.toBlob(blob=>blob?resolve(blob):reject(new Error('Image export unavailable')),'image/png'));
