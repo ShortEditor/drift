@@ -17,6 +17,7 @@ public class MainActivity extends BridgeActivity {
         if (bridge != null) bridge.getWebView().evaluateJavascript("document.documentElement.style.setProperty('--android-status-inset','" + statusInset + "px')", null);
     }
     @Override public void onCreate(Bundle savedInstanceState) {
+        registerPlugin(DriftSharePlugin.class);
         super.onCreate(savedInstanceState);
         WebView.setWebContentsDebuggingEnabled(false);
         WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
