@@ -30,7 +30,7 @@ service cloud.firestore {
   match /users/{uid}/preferences/{id}{allow read:if approved()&&uid==request.auth.uid&&id=='discovery';allow create,update:if approved()&&uid==request.auth.uid&&id=='discovery'&&request.resource.data.keys().hasOnly(['genre','mood','query'])&&request.resource.data.genre is int&&request.resource.data.mood is string&&request.resource.data.mood.size()<100&&request.resource.data.query is string&&request.resource.data.query.size()<=200;}
   match /messages/{id}{
    allow read:if approved()&&(resource.data.to==request.auth.uid||resource.data.from==request.auth.uid);
-   allow create:if approved()&&member(request.auth.uid)&&request.resource.data.keys().hasOnly(['from','to','songId','sentAt'])&&request.resource.data.from==request.auth.uid&&request.resource.data.to is string&&request.resource.data.to!=request.auth.uid&&member(request.resource.data.to)&&request.resource.data.songId is int&&request.resource.data.songId!=0&&exists(/databases/$(database)/documents/users/$(request.auth.uid)/likes/$(string(request.resource.data.songId)))&&request.resource.data.sentAt==request.time;
+   allow create:if approved()&&member(request.auth.uid)&&request.resource.data.keys().hasOnly(['from','to','songId','sentAt'])&&request.resource.data.from==request.auth.uid&&request.resource.data.to is string&&request.resource.data.to!=request.auth.uid&&member(request.resource.data.to)&&request.resource.data.songId is int&&request.resource.data.songId!=0&&request.resource.data.sentAt==request.time;
    allow update,delete:if false;
   }
   match /{document=**}{allow read,write:if false;}
