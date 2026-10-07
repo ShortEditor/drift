@@ -1,5 +1,8 @@
+import {betaAccess} from '../lib/beta-auth.js';
 const PROJECT='drift-download-counters';
 export default async function handler(req,res){
+ if(!await betaAccess(req,res))return;
+ if(process.env.DRIFT_BETA==='1')return res.status(404).end();
  res.setHeader('Cache-Control','no-store');
  if(req.method!=='GET')return res.status(405).end();
  // Counts requests, not completion/installation. No identities or device IDs stored.

@@ -1,7 +1,9 @@
+import {betaAccess} from '../lib/beta-auth.js';
 const platforms={spotify:'open.spotify.com',appleMusic:'music.apple.com',youtubeMusic:'music.youtube.com'};
 export function safePlatformUrl(value,platform){try{const u=new URL(value);return u.protocol==='https:'&&u.hostname===platforms[platform]?u.href:null;}catch{return null;}}
 const cache=new Map();let nextRequest=0;
 export default async function handler(req,res){
+ if(!await betaAccess(req,res))return;
  if(req.method!=='GET')return res.status(405).json({error:'GET only'});
  const {id}=req.query;if(typeof id!=='string'||!/^\d+$/.test(id)||!Number.isSafeInteger(Number(id))||Number(id)<=0||Object.keys(req.query).some(k=>k!=='id'))return res.status(400).json({error:'Invalid track ID'});
  if(!process.env.ODESLI_API_KEY)return res.status(200).json({links:{},reason:'Search links only: public matching API is deprecated'});

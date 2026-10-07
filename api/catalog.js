@@ -1,9 +1,11 @@
+import {betaAccess} from '../lib/beta-auth.js';
 import {routeCatalog} from './lib/router.js';
 export function mapJamendo(t) {
  const id=Number(t.id),artistId=Number(t.artist_id);if(!Number.isSafeInteger(id)||id<=0||!Number.isSafeInteger(artistId)||!t.name||!t.artist_name||!t.license_ccurl||!t.shareurl)return null;
  return {id:-id,duration:Number(t.duration)||undefined,lyrics:typeof t.lyrics==='string'?t.lyrics:undefined,title:t.name,artist:{id:-artistId,name:t.artist_name},album:{id:-Number(t.album_id||id),title:t.album_name||t.name,cover_big:t.image},preview:t.audio,source:'jamendo',providerId:id,credit:{licenseUrl:t.license_ccurl,trackUrl:t.shareurl,artist:t.artist_name,provider:'Jamendo'}};
 }
 export default async function handler(req,res) {
+ if(!await betaAccess(req,res))return;
  if(req.method!=='GET')return res.status(405).json({error:{message:'GET only'}});
  const q=req.query;
  if(Object.keys(q).some(k=>!['source','query','genre','index','intent','track','status','seed'].includes(k))||Object.values(q).some(v=>typeof v!=='string'))return res.status(400).json({error:{message:'Invalid query'}});

@@ -8,5 +8,6 @@ export async function transport<T>(path:string,params:Record<string,string|numbe
  try {const query=new URLSearchParams({path,...Object.fromEntries(Object.entries(params).map(([k,v])=>[k,String(v)]))});const r=await fetch(apiUrl(`/api/deezer?${query}`),{signal:controller.signal});if(!r.ok)throw new Error(`HTTP ${r.status}`);return validateEnvelope<T>(await r.json());}
  catch(e){if(signal?.aborted)throw new DOMException('Aborted','AbortError');if(e instanceof ApiError)throw e;cause=(e as Error).name==='AbortError'?'timed out':(e as Error).message;console.warn('[catalog] relay failed:',cause);}
  finally {clearTimeout(timer);signal?.removeEventListener('abort',abort);}
+ if(import.meta.env.VITE_DRIFT_BETA==='1')throw new Error(`Beta catalog unavailable: ${cause}`);
  try {return await jsonp<T>(path,params,signal,timeoutMs());}catch(e){if((e as Error).name==='AbortError'||e instanceof ApiError)throw e;throw new Error(`The music catalog did not answer. Relay: ${cause}. Direct: ${(e as Error).message}. Retry or check your connection.`);}
 }

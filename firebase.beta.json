@@ -1,0 +1,1 @@
+{"firestore": {"rules": "beta.firestore.rules"}, "emulators": {"firestore": {"port": 8189}, "ui": {"enabled": false}, "auth": {"port": 9099}}}

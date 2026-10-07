@@ -1,1 +1,73 @@
-{"framework": "vite", "buildCommand": "npm run build", "outputDirectory": "dist", "headers": [{"source": "/(.*)", "headers": [{"key": "X-Robots-Tag", "value": "noindex, nofollow, noarchive"}, {"key": "X-Content-Type-Options", "value": "nosniff"}, {"key": "Referrer-Policy", "value": "no-referrer"}]}, {"source": "/sw.js", "headers": [{"key": "Cache-Control", "value": "no-cache"}]}, {"source": "/api/(.*)", "headers": [{"key": "Access-Control-Allow-Origin", "value": "https://localhost"}, {"key": "Access-Control-Allow-Methods", "value": "GET, OPTIONS"}, {"key": "Access-Control-Allow-Headers", "value": "Content-Type"}]}, {"source": "/releases/(.*)", "headers": [{"key": "Content-Type", "value": "application/vnd.android.package-archive"}, {"key": "Content-Disposition", "value": "attachment"}, {"key": "Cache-Control", "value": "public, max-age=3600"}]}], "rewrites": [{"source": "/download", "destination": "/index.html"}]}
+{
+  "framework": "vite",
+  "buildCommand": "if [ \"$VITE_DRIFT_BETA\" = \"1\" ]; then npm run build:beta; else npm run build; fi",
+  "outputDirectory": "dist",
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow, noarchive"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "no-referrer"
+        }
+      ]
+    },
+    {
+      "source": "/sw.js",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache"
+        }
+      ]
+    },
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "https://localhost"
+        },
+        {
+          "key": "Access-Control-Allow-Methods",
+          "value": "GET, OPTIONS"
+        },
+        {
+          "key": "Access-Control-Allow-Headers",
+          "value": "Content-Type"
+        }
+      ]
+    },
+    {
+      "source": "/releases/(.*)",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/vnd.android.package-archive"
+        },
+        {
+          "key": "Content-Disposition",
+          "value": "attachment"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=3600"
+        }
+      ]
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/download",
+      "destination": "/index.html"
+    }
+  ]
+}

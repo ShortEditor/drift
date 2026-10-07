@@ -1,0 +1,23 @@
+rules_version = '2';
+service cloud.firestore {
+ match /databases/{database}/documents {
+  function approved(){return request.auth!=null && request.auth.token.email_verified==true && request.auth.token.firebase.sign_in_provider=='google.com' && get(/databases/$(database)/documents/invites/$(request.auth.token.email)).data.active==true;}
+  function member(uid){return get(/databases/$(database)/documents/invites/$(get(/databases/$(database)/documents/memberships/$(uid)).data.email)).data.active==true;}
+  match /memberships/{uid}{allow get:if approved()&&uid==request.auth.uid;allow create:if approved()&&uid==request.auth.uid&&request.resource.data.keys().hasOnly(['email'])&&request.resource.data.email==request.auth.token.email;allow list,update,delete:if false;}
+  match /invites/{email}{allow get:if request.auth!=null&&request.auth.token.email==email;allow list,write:if false;}
+  match /profiles/{uid}{
+   allow read:if approved();
+   allow create:if approved()&&uid==request.auth.uid&&request.resource.data.keys().hasOnly(['username','active'])&&request.resource.data.active==true&&request.resource.data.username.matches('^[a-z][a-z0-9_]{2,19}$')&&getAfter(/databases/$(database)/documents/usernames/$(request.resource.data.username)).data.uid==uid;
+   allow update,delete:if false;
+  }
+  match /usernames/{name}{allow read:if approved();allow create:if approved()&&name.matches('^[a-z][a-z0-9_]{2,19}$')&&request.resource.data.keys().hasOnly(['uid'])&&request.resource.data.uid==request.auth.uid&&getAfter(/databases/$(database)/documents/profiles/$(request.auth.uid)).data.username==name;allow update,delete:if false;}
+  match /users/{uid}/likes/{id}{allow read,delete:if approved()&&uid==request.auth.uid;allow create,update:if approved()&&uid==request.auth.uid&&request.resource.data.keys().hasOnly(['id','title','artistName','likedAt'])&&request.resource.data.id is int&&string(request.resource.data.id)==id&&request.resource.data.id!=0&&request.resource.data.title is string&&request.resource.data.title.size()<=200&&request.resource.data.artistName is string&&request.resource.data.artistName.size()<=200&&request.resource.data.likedAt is number;}
+  match /users/{uid}/preferences/{id}{allow read:if approved()&&uid==request.auth.uid&&id=='discovery';allow create,update:if approved()&&uid==request.auth.uid&&id=='discovery'&&request.resource.data.keys().hasOnly(['genre','mood','query'])&&request.resource.data.genre is int&&request.resource.data.mood is string&&request.resource.data.mood.size()<100&&request.resource.data.query is string&&request.resource.data.query.size()<=200;}
+  match /messages/{id}{
+   allow read:if approved()&&(resource.data.to==request.auth.uid||resource.data.from==request.auth.uid);
+   allow create:if approved()&&member(request.auth.uid)&&request.resource.data.keys().hasOnly(['from','to','songId','sentAt'])&&request.resource.data.from==request.auth.uid&&request.resource.data.to is string&&request.resource.data.to!=request.auth.uid&&member(request.resource.data.to)&&request.resource.data.songId is int&&request.resource.data.songId!=0&&exists(/databases/$(database)/documents/users/$(request.auth.uid)/likes/$(string(request.resource.data.songId)))&&request.resource.data.sentAt==request.time;
+   allow update,delete:if false;
+  }
+  match /{document=**}{allow read,write:if false;}
+ }
+}

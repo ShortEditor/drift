@@ -1,5 +1,6 @@
 import { localStore, type LikesStore, type Preferences } from './store';
 export async function createLikesStore():Promise<LikesStore> {
+  if(import.meta.env.VITE_DRIFT_BETA==='1'){const {auth}=await import('../beta/client');const {betaLikesStore}=await import('../beta/store');if(!auth.currentUser)throw new Error('Sign in first.');return betaLikesStore(auth.currentUser.uid);}
   const e=import.meta.env; const values=[e.VITE_FIREBASE_API_KEY,e.VITE_FIREBASE_AUTH_DOMAIN,e.VITE_FIREBASE_PROJECT_ID,e.VITE_FIREBASE_APP_ID];
   if(values.every(v=>!v)) return localStore;
   if(values.some(v=>!v)) throw new Error('Firebase config is incomplete. Fill all four fields or clear all for device storage.');
