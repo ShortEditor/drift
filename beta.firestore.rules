@@ -4,7 +4,22 @@ service cloud.firestore {
   function approved(){return request.auth!=null && request.auth.token.email_verified==true && request.auth.token.firebase.sign_in_provider=='google.com' && get(/databases/$(database)/documents/invites/$(request.auth.token.email)).data.active==true;}
   function member(uid){return get(/databases/$(database)/documents/invites/$(get(/databases/$(database)/documents/memberships/$(uid)).data.email)).data.active==true;}
   match /memberships/{uid}{allow get:if approved()&&uid==request.auth.uid;allow create:if approved()&&uid==request.auth.uid&&request.resource.data.keys().hasOnly(['email'])&&request.resource.data.email==request.auth.token.email;allow list,update,delete:if false;}
-  match /invites/{email}{allow get:if request.auth!=null&&request.auth.token.email==email;allow list,write:if false;}
+  function google(){return request.auth!=null&&request.auth.token.email_verified==true&&request.auth.token.firebase.sign_in_provider=='google.com';}
+  match /inviteSlots/{uid}/slots/{slot}{
+   allow read:if approved()&&request.auth.uid==uid;
+   allow create:if approved()&&request.auth.uid==uid&&slot in ['1','2','3','4','5']&&request.resource.data.keys().hasOnly(['token'])&&request.resource.data.token.matches('^[a-f0-9]{64}$')&&getAfter(/databases/$(database)/documents/inviteLinks/$(request.resource.data.token)).data.creator==uid&&getAfter(/databases/$(database)/documents/inviteLinks/$(request.resource.data.token)).data.slot==slot;
+   allow update,delete:if false;
+  }
+  match /inviteLinks/{token}{
+   allow get:if google();allow list:if false;
+   allow create:if approved()&&member(request.auth.uid)&&token.matches('^[a-f0-9]{64}$')&&request.resource.data.keys().hasOnly(['creator','slot','createdAt','redeemedUid'])&&request.resource.data.creator==request.auth.uid&&request.resource.data.redeemedUid==''&&request.resource.data.createdAt==request.time&&getAfter(/databases/$(database)/documents/inviteSlots/$(request.auth.uid)/slots/$(request.resource.data.slot)).data.token==token;
+   allow update:if google()&&resource.data.redeemedUid==''&&member(resource.data.creator)&&request.resource.data.diff(resource.data).affectedKeys().hasOnly(['redeemedUid'])&&request.resource.data.redeemedUid==request.auth.uid&&getAfter(/databases/$(database)/documents/invites/$(request.auth.token.email)).data.linkToken==token&&getAfter(/databases/$(database)/documents/invites/$(request.auth.token.email)).data.uid==request.auth.uid;
+   allow delete:if false;
+  }
+  match /invites/{email}{
+   allow get:if request.auth!=null&&request.auth.token.email==email;allow list,update,delete:if false;
+   allow create:if google()&&email==request.auth.token.email&&request.resource.data.keys().hasOnly(['active','uid','invitedBy','linkToken'])&&request.resource.data.active==true&&request.resource.data.uid==request.auth.uid&&get(/databases/$(database)/documents/inviteLinks/$(request.resource.data.linkToken)).data.redeemedUid==''&&member(request.resource.data.invitedBy)&&getAfter(/databases/$(database)/documents/inviteLinks/$(request.resource.data.linkToken)).data.creator==request.resource.data.invitedBy&&getAfter(/databases/$(database)/documents/inviteLinks/$(request.resource.data.linkToken)).data.redeemedUid==request.auth.uid;
+  }
   match /profiles/{uid}{
    allow read:if approved();
    allow create:if approved()&&uid==request.auth.uid&&request.resource.data.keys().hasOnly(['username','active'])&&request.resource.data.active==true&&request.resource.data.username.matches('^[a-z][a-z0-9_]{2,19}$')&&getAfter(/databases/$(database)/documents/usernames/$(request.resource.data.username)).data.uid==uid;
