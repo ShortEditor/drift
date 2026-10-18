@@ -1,0 +1,31 @@
+
+> music-scroll-private-prototype@0.1.0 build:beta
+> tsc -b && vite build --mode beta && node scripts/finalize.mjs && node scripts/build-beta.mjs
+
+vite v6.4.3 building for beta...
+transforming...
+✓ 81 modules transformed.
+[plugin vite:reporter] 
+(!) /home/sandbox/drift/src/beta/store.ts is dynamically imported by /home/sandbox/drift/src/likes/firebase.ts but also statically imported by /home/sandbox/drift/src/beta/BetaApp.tsx, dynamic import will not move module into another chunk.
+
+rendering chunks...
+computing gzip size...
+dist/index.html                      0.62 kB │ gzip:   0.37 kB
+dist/assets/stitch-4-Bvc5zJgw.ttf   52.73 kB
+dist/assets/stitch-5-BDuV6lBd.ttf   52.87 kB
+dist/assets/stitch-0-udOW8rRD.ttf   63.34 kB
+dist/assets/stitch-3-Bt8SGVSa.ttf   63.34 kB
+dist/assets/stitch-1-qyw_9g6K.ttf   63.40 kB
+dist/assets/stitch-2-QNVXA91K.ttf   63.41 kB
+dist/assets/index-Cu8UovVU.css      46.90 kB │ gzip:   9.79 kB
+dist/assets/ShareSong-CsxjMosP.js    1.80 kB │ gzip:   0.95 kB
+dist/assets/web-DZZbP9m_.js         12.52 kB │ gzip:   2.89 kB
+dist/assets/BetaApp-nmxRN9RB.js     41.64 kB │ gzip:  14.01 kB
+dist/assets/index-BhSbfHo0.js      247.05 kB │ gzip:  78.16 kB
+dist/assets/client-DVI1s1Qj.js     732.38 kB │ gzip: 178.81 kB
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 3.52s
