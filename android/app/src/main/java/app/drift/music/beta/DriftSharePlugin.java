@@ -1,4 +1,4 @@
-package app.drift.music;
+package app.drift.music.beta;
 
 import android.app.Activity;
 import android.content.ClipData;
