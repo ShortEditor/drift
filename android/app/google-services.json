@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "414755378207",
+    "project_id": "drift-private-beta",
+    "storage_bucket": "drift-private-beta.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:414755378207:android:22cde892954575c185f12a",
+        "android_client_info": {
+          "package_name": "app.drift.music.beta"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "414755378207-mrbmp0cvfjessno9077otntm2jscn5pc.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBihHJlq_1F-0aUkw1aTRKblgejAQJjdes"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "414755378207-mrbmp0cvfjessno9077otntm2jscn5pc.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

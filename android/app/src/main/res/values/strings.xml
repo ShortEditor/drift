@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">drift</string>
-    <string name="title_activity_main">drift</string>
-    <string name="package_name">app.drift.music</string>
-    <string name="custom_url_scheme">app.drift.music</string>
+    <string name="app_name">Drift Beta</string>
+    <string name="title_activity_main">Drift Beta</string>
+    <string name="package_name">app.drift.music.beta</string>
+    <string name="custom_url_scheme">app.drift.music.beta</string>
 </resources>
