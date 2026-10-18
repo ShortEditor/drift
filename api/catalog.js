@@ -5,6 +5,7 @@ export function mapJamendo(t) {
  return {id:-id,duration:Number(t.duration)||undefined,lyrics:typeof t.lyrics==='string'?t.lyrics:undefined,title:t.name,artist:{id:-artistId,name:t.artist_name},album:{id:-Number(t.album_id||id),title:t.album_name||t.name,cover_big:t.image},preview:t.audio,source:'jamendo',providerId:id,credit:{licenseUrl:t.license_ccurl,trackUrl:t.shareurl,artist:t.artist_name,provider:'Jamendo'}};
 }
 export default async function handler(req,res) {
+ if(req.method==='OPTIONS'){res.status(204).end();return;}
  if(!await betaAccess(req,res))return;
  if(req.method!=='GET')return res.status(405).json({error:{message:'GET only'}});
  const q=req.query;

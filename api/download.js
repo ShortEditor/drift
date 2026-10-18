@@ -1,6 +1,7 @@
 import {betaAccess} from '../lib/beta-auth.js';
 const PROJECT='drift-download-counters';
 export default async function handler(req,res){
+ if(req.method==='OPTIONS'){res.status(204).end();return;}
  if(!await betaAccess(req,res))return;
  if(process.env.DRIFT_BETA==='1')return res.status(404).end();
  res.setHeader('Cache-Control','no-store');

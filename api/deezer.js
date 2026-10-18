@@ -1,6 +1,7 @@
 import {betaAccess} from '../lib/beta-auth.js';
 const allowedPath = /^\/(search(?:\/artist)?|genre|track\/\d+|artist\/\d+(?:\/top)?|album\/\d+(?:\/tracks)?|chart\/\d+\/tracks)$/;
 export default async function handler(req, res) {
+ if(req.method==='OPTIONS'){res.status(204).end();return;}
  if(!await betaAccess(req,res))return;
  if(req.method !== 'GET') return res.status(405).json({error:{message:'GET only'}});
  const {path, ...params}=req.query;
