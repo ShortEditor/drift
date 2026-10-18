@@ -3,5 +3,6 @@ const config: CapacitorConfig = {
  appId:'app.drift.music.beta',appName:'Drift Beta',webDir:'dist',
  server:{cleartext:false},
  android:{allowMixedContent:false,backgroundColor:'#101217',webContentsDebuggingEnabled:false},
+ plugins:{FirebaseAuthentication:{skipNativeAuth:false,providers:['google.com']}},
 };
 export default config;
