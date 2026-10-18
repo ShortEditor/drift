@@ -9,7 +9,9 @@ export const auth=getAuth(betaApp),db=getFirestore(betaApp);
 if(import.meta.env.DEV&&e.VITE_BETA_EMULATORS==='1'){connectAuthEmulator(auth,'http://127.0.0.1:9099',{disableWarnings:true});connectFirestoreEmulator(db,'127.0.0.1',8189);}
 export const login=async()=>{
  if(Capacitor.isNativePlatform()){
-  const r=await FirebaseAuthentication.signInWithGoogle();
+  let r;
+  try{r=await FirebaseAuthentication.signInWithGoogle();}
+  catch(err){const m=String((err as any)?.message??err);if(!/credential manager/i.test(m))throw err;r=await FirebaseAuthentication.signInWithGoogle({useCredentialManager:false});}
   const t=r.credential?.idToken;
   if(!t)throw Error('Google sign-in did not return a credential.');
   return signInWithCredential(auth,GoogleAuthProvider.credential(t));
