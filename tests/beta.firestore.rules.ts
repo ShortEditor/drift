@@ -43,3 +43,17 @@ it('enforces five lifetime single-use links, atomic redemption, no open signup o
  await env.withSecurityRulesDisabled(c=>setDoc(doc(c.firestore(),'invites','a@example.test'),{active:false}));
  const revoked=writeBatch(d);revoked.update(doc(d,'inviteLinks',token(2)),{redeemedUid:'d'});revoked.set(doc(d,'invites','d@example.test'),{active:true,uid:'d',invitedBy:'a',linkToken:token(2)});await assertFails(revoked.commit());
 });
+it('group link: capped seats, one seat per account, no bypass',async()=>{
+ const p=ctx('p','p@example.test'),q=ctx('q','q@example.test'),r=ctx('r','r@example.test');
+ const tok='ab'.repeat(32);
+ await env.withSecurityRulesDisabled(async x=>{const f=x.firestore();await setDoc(doc(f,'memberships','a'),{email:'a@example.test'});await setDoc(doc(f,'invites','a@example.test'),{active:true});await setDoc(doc(f,'groupLinks',tok),{creator:'a',cap:2,count:0,active:true});});
+ const join=(u:any,uid:string,mail:string,n:number)=>{const b=writeBatch(u);b.update(doc(u,'groupLinks',tok),{count:n});b.set(doc(u,'invites',mail),{active:true,uid:uid,invitedBy:'a',linkToken:tok});return b.commit();};
+ await assertFails(setDoc(doc(p,'invites','p@example.test'),{active:true,uid:'c',invitedBy:'a',linkToken:tok}));
+ await assertFails(setDoc(doc(p,'groupLinks','cd'.repeat(32)),{creator:'a',cap:99,count:0,active:true}));
+ await assertSucceeds(join(p,'p','p@example.test',1));
+ await assertFails(join(q,'q','q@example.test',1));
+ await assertFails(join(q,'q','q@example.test',3));
+ await assertSucceeds(join(q,'q','q@example.test',2));
+ await assertFails(join(r,'r','r@example.test',3));
+ await assertSucceeds(getDoc(doc(p,'profiles','a')));
+});

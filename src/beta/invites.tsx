@@ -6,7 +6,7 @@ import {db} from './client';
 const inviteOrigin=()=>Capacitor.isNativePlatform()?'https://drift-private-beta.vercel.app':location.origin;
 export async function redeemInvite(user:User,token:string){
  if(!/^[a-f0-9]{64}$/.test(token))throw Error('Invalid invitation link.');
- await runTransaction(db,async t=>{const link=doc(db,'inviteLinks',token),grant=doc(db,'invites',user.email!);const [l,g]=await Promise.all([t.get(link),t.get(grant)]);if(g.exists()){if(!g.data().active)throw Error('Your access has been revoked.');return;}if(!l.exists()||l.data().redeemedUid)throw Error('This invitation is invalid or has already been used.');t.update(link,{redeemedUid:user.uid});t.set(grant,{active:true,uid:user.uid,invitedBy:l.data().creator,linkToken:token});});
+ await runTransaction(db,async t=>{const link=doc(db,'inviteLinks',token),grant=doc(db,'invites',user.email!),group=doc(db,'groupLinks',token);const [l,g,gl]=await Promise.all([t.get(link),t.get(grant),t.get(group)]);if(g.exists()){if(!g.data().active)throw Error('Your access has been revoked.');return;}if(gl.exists()){const d=gl.data();if(d.active!==true||d.count>=d.cap)throw Error('This invitation is full or no longer active.');t.update(group,{count:d.count+1});t.set(grant,{active:true,uid:user.uid,invitedBy:d.creator,linkToken:token});return;}if(!l.exists()||l.data().redeemedUid)throw Error('This invitation is invalid or has already been used.');t.update(link,{redeemedUid:user.uid});t.set(grant,{active:true,uid:user.uid,invitedBy:l.data().creator,linkToken:token});});
 }
 export function InvitePeople({uid}:{uid:string}){
  const [links,setLinks]=useState<{slot:string;token:string}[]>([]),[status,setStatus]=useState(''),[busy,setBusy]=useState(false);
