@@ -2,8 +2,9 @@ import {apiUrl} from './base';
 import {deezer} from './deezer';
 import {ApiError, type Track, type CatalogList} from './types';
 export type Source='auto'|'deezer'|'jamendo';
-export async function catalogBatch(mode:{query?:string;genre:number;source:Source;seed?:number},index:number,signal?:AbortSignal):Promise<CatalogList<Track>> {
+export async function catalogBatch(mode:{query?:string;genre:number;source:Source;seed?:number;language?:string},index:number,signal?:AbortSignal):Promise<CatalogList<Track>> {
  const params=new URLSearchParams({source:mode.source,query:mode.query||'',genre:String(mode.genre),index:String(index),seed:String(mode.seed||0)});
+ if(mode.language&&mode.language!=='all'&&!mode.query)params.set('lang',mode.language);
  for(let attempt=0;attempt<3;attempt++){
   if(signal?.aborted)throw new DOMException('Aborted','AbortError');
   const timeout=new AbortController();const abort=()=>timeout.abort();signal?.addEventListener('abort',abort,{once:true});const timer=setTimeout(()=>timeout.abort(),18000);
